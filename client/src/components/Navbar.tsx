@@ -3,11 +3,13 @@ import { Menubar, MenubarContent, MenubarTrigger, MenubarMenu, MenubarItem } fro
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { HandPlatter, Loader2, Menu, Moon, PackageCheck, ShoppingCart, SquareMenu, Sun, SunIcon, User2, UtensilsCrossed } from "lucide-react";
-import { Avatar, AvatarImage } from "./ui/avatar";
-import { AvatarFallback } from "@radix-ui/react-avatar";
+
+
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 
 import { Separator } from "./ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+
 
 const Navbar = () => {
     const admin = false;
@@ -74,11 +76,14 @@ const Navbar = () => {
                             <button className="absolute -inset-y-4 text-xs rounded-full h-4 w-5 bg-white text-black p-1 left-2">5</button>
                         </Link>
 
-                        <Avatar>
-                            <AvatarImage>
-                                <AvatarFallback className="bg-black text-white">nnn</AvatarFallback>
-                            </AvatarImage>
-                        </Avatar>
+                        <div>
+                            <Avatar>
+                                <AvatarImage/>
+                                    <AvatarFallback>CN</AvatarFallback>
+                        
+                            </Avatar>
+                        </div>
+
 
                         <div>
                             {
@@ -142,7 +147,7 @@ const MobileNavbar = () => {
                         <span className="text-black">Profile</span>
                     </Link>
 
-                    <Link to="/profile" className="flex items-center gap-4 hover:bg-gray-400 px-3 py-2 rounded-md cursor-pointer hover:text-gray-900">
+                    <Link to="/order/status" className="flex items-center gap-4 hover:bg-gray-400 px-3 py-2 rounded-md cursor-pointer hover:text-gray-900">
                         <HandPlatter className="text-black" />
                         <span className="text-black">Order</span>
                     </Link>
@@ -157,12 +162,12 @@ const MobileNavbar = () => {
                         <span className="text-black">Restaurant</span>
                     </Link>
 
-                    <Link to="/profile" className="flex items-center gap-4 hover:bg-gray-400 px-3 py-2 rounded-md cursor-pointer hover:text-gray-900">
+                    <Link to="/admin/menu" className="flex items-center gap-4 hover:bg-gray-400 px-3 py-2 rounded-md cursor-pointer hover:text-gray-900">
                         <SquareMenu className="text-black" />
                         <span className="text-black">Menu</span>
                     </Link>
 
-                    <Link to="/profile" className="flex items-center gap-4 hover:bg-gray-400 px-3 py-2 rounded-md cursor-pointer hover:text-gray-900">
+                    <Link to="/admin/orders" className="flex items-center gap-4 hover:bg-gray-400 px-3 py-2 rounded-md cursor-pointer hover:text-gray-900">
                         <PackageCheck className="text-black" />
                         <span className="text-black">Restaurant Order</span>
                     </Link>

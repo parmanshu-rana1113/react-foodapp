@@ -1,4 +1,7 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { SignupInputState, userSignupSchema } from "@/schema/userschema";
+import { useUserStore } from "@/store/useUserStore";
 import { Separator } from "@radix-ui/react-separator";
 import { Loader2, LockKeyhole, Mail, PhoneOutgoing, User2 } from "lucide-react";
 import { ChangeEvent, useState } from "react";
@@ -21,13 +24,21 @@ const Signup = () => {
   });
 
   const [errors, setErrors] = useState<Partial<SignupInputState>>({});
+  const [serverError, setServerError] = useState<string | null>(null);  // New state to handle server error
+
+
+  // useuserstore se layenge
+  const { signup, loading } = useUserStore();
+
   const changeEventHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setInput({ ...input, [name]: value });
   };
 
-  const loginSubmitHandler = (e: React.FormEvent) => {
+  const loginSubmitHandler = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevents page refresh
+
+    setServerError(null);
 
     // FORM VALIDAITON CHECK
 
@@ -35,15 +46,23 @@ const Signup = () => {
     if (!result.success) {
       const fieldErrors = result.error.formErrors.fieldErrors;
       setErrors(fieldErrors as Partial<SignupInputState>);
+      // setErrors(result.errors);
       return;
     }
 
     // api implementation  start here
-
-    console.log(input);
+    try {
+      await signup(input);
+    } catch (error: any) {
+      // Capture and display server error (like "User already exists")
+      if (error.response && error.response.data) {
+        setServerError(error.response.data.message);
+      }
+    }
+    // console.log(input);
   };
 
-  const loading = false;
+  // const loading = false;  //dynamic krdia
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -58,7 +77,7 @@ const Signup = () => {
 
         <div className="mb-4">
           <div className="relative">
-            <input
+            <Input
               type="text"
               placeholder="Full Name"
               name="fullname"
@@ -95,7 +114,7 @@ const Signup = () => {
 
         <div className="mb-4">
           <div className="relative">
-            <input
+            <Input
               type="text"
               placeholder="Contact"
               name="contact"
@@ -132,7 +151,7 @@ const Signup = () => {
 
         <div className="mb-4">
           <div className="relative">
-            <input
+            <Input
               type="email"
               placeholder="Email"
               name="email"
@@ -169,7 +188,7 @@ const Signup = () => {
 
         <div className="mb-4">
           <div className="relative">
-            <input
+            <Input
               type="password"
               placeholder="Password"
               name="password"
@@ -207,14 +226,14 @@ const Signup = () => {
 
         <div className="mb-7">
           {loading ? (
-            <button disabled className="w-full bg-orange hover:bg-hoverorange" style={{ padding: "0.6em 1.2em" }}>
+            <Button disabled className="w-full bg-orange hover:bg-hoverorange" style={{ padding: "0.6em 1.2em" }}>
               <Loader2 className="mr-1 h-5 w-5 animate-spin" />
-              TikJaa Yaar
-            </button>
+              wait
+            </Button>
           ) : (
-            <button type="submit" className="w-full bg-orange hover:bg-hoverorange" style={{ padding: "0.6em 1.2em" }}>
+            <Button type="submit" className="w-full bg-orange hover:bg-hoverorange" style={{ padding: "0.6em 1.2em" }}>
               Signup
-            </button>
+            </Button>
           )}
         </div>
 

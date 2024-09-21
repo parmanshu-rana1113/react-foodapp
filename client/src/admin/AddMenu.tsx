@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Plus } from "lucide-react";
 import { useState, FormEvent } from "react";
 import EditMenu from "./EditMenu";
+import { menuFormSchema, menuSchema } from "@/schema/menuScheme";
+// import { error } from "console";
 
 const menus = [
     {
@@ -29,7 +31,7 @@ const menus = [
 
 const AddMenu = () => {
     const [input, setInput] = useState<any>({
-        title: "",
+        name: "",
         description: "",
         price: 0,
         image: undefined
@@ -37,7 +39,8 @@ const AddMenu = () => {
 
     const [open, setOpen] = useState<boolean>(false);
     const [editOpen, setEditOpen] = useState <boolean>(false);
-    const [selectedMenu, setSelectedMenu] = useState<any>();
+    const [selectedMenu, setSelectedMenu] = useState<menuFormSchema>();
+    const [errors, setErrors] = useState<Partial<menuFormSchema>>({});
     const loading = false;
 
     const changeEventHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +50,17 @@ const AddMenu = () => {
 
     const submitHandler = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(input); // logs the form data
+
+        const result = menuSchema.safeParse(input);
+        if(!result.success){
+            const fieldErrors = result.error.formErrors.fieldErrors;
+            setErrors(fieldErrors as Partial<menuFormSchema>);
+            return;
+        }
+
+        // console.log(input); 
+    //   API sTART 
+
     };
 
     return (
@@ -80,6 +93,7 @@ const AddMenu = () => {
                                     value={input.name}
                                     onChange={changeEventHandler}
                                 />
+                                {errors && <span className="text-xs font-medium text-red-600">{errors.name}</span>}
                             </div>
 
                             <div>
@@ -91,6 +105,8 @@ const AddMenu = () => {
                                     value={input.description}
                                     onChange={changeEventHandler}
                                 />
+                                {errors && <span className="text-xs font-medium text-red-600">{errors.description}</span>}
+
                             </div>
 
                             <div>
@@ -102,6 +118,8 @@ const AddMenu = () => {
                                     value={input.price}
                                     onChange={changeEventHandler}
                                 />
+                                {errors && <span className="text-xs font-medium text-red-600">{errors.price}</span>}
+
                             </div>
 
                             <div>
@@ -111,6 +129,8 @@ const AddMenu = () => {
                                     name="image"
                                     onChange={(e) => setInput({ ...input, image: e.target.files?.[0] || undefined })}
                                 />
+                                {errors && <span className="text-xs font-medium text-red-600">{errors.image?.name|| "image is required"}</span>}
+
                             </div>
 
                             <DialogFooter className="mt-5">
@@ -143,7 +163,12 @@ const AddMenu = () => {
                                 <h3>Price: <span className="text-[#D19254]">{menu.price}</span></h3>
                             </div>
                             <Button onClick={() => {
-                                setSelectedMenu(menu);
+                                  setSelectedMenu({
+                                    name: menu.title, // map title to name
+                                    description: menu.description,
+                                    price: menu.price,
+                                    image: undefined, // You may not have the image initially, so set it to undefined
+                                  });
                                 setEditOpen(true);
                             }} className="bg-orange hover:bg-hoverorange mt-2 w-full">Edit</Button>
                         </div>
