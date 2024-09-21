@@ -6,6 +6,7 @@ import cloudinary from "../utils/cloudinary";
 import { generateVerificationCode } from "../utils/generateVerificationCode";
 import { generateToken } from "../utils/generateTokens";
 import { sendPasswordResetEmail, sendResetSuccessEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/email";
+import { any } from "zod";
 
 
 export const signup = async (req: Request, res: Response) => {
@@ -32,7 +33,7 @@ export const signup = async (req: Request, res: Response) => {
             verificationToken,
             verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
         })
-        generateToken(res,user);
+        generateToken(res, user);
 
         await sendVerificationEmail(email, verificationToken);
 

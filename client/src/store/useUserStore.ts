@@ -48,7 +48,7 @@ export const useUserStore = create<any>()(persist((set) => ({
             set({ loading: true });
             const response = await axios.post(`${API_END_POINT}/login`, input, {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',  
                 }
             });
             // const response = await
