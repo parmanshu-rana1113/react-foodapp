@@ -1,10 +1,11 @@
 import mongoose, { Document } from "mongoose";
+import { boolean, string } from "zod";
 // import { boolean, number, string } from "zod";
 
 // TYPESCRIPT
 export interface IUser {
 
-    fullname:string;
+    fullname?: string | null;
     email:string;
     password:string;
     contact:number;
@@ -82,6 +83,7 @@ const userSchema = new mongoose.Schema({
     resetPasswordTokenExpiresAt: Date,
     verificationToken: String,
     verificationTokenExpiresAt: Date,
+    
 
 }, { timestamps: true });
 

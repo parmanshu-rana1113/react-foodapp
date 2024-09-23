@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { User } from "../models/user.model";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcryptjs"
 import crypto from "crypto";
 import cloudinary from "../utils/cloudinary";
 import { generateVerificationCode } from "../utils/generateVerificationCode";
 import { generateToken } from "../utils/generateTokens";
 import { sendPasswordResetEmail, sendResetSuccessEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/email";
-import { any } from "zod";
+import { any, string } from "zod";
 
 
 export const signup = async (req: Request, res: Response) => {
@@ -90,9 +90,20 @@ export const login = async (req: Request, res: Response) => {
 export const verifyEmail = async (req: Request, res: Response) => {
 
     try {
-        const { verificationCode } = req.body;
-        const user = await User.findOne({ verificationToken: verificationCode, verificationTokenExpireAt: { $gt: Date.now() } }).select("-password");
-
+        console.log("Request received"); 
+        console.log("Request Body:", req.body); // Log the request body
+        console.log("Current Time:", Date.now()); // Log the current timestamp
+        const { verificationCode  } = req.body;
+        console.log(verificationCode);
+        console.log("Verification Code:", verificationCode);
+        // const user = await User.findOne({ verificationToken: verificationCode, verificationTokenExpireAt: { $gt: Date.now() } }).select("-password");
+        const user = await User.findOne({
+            verificationToken: verificationCode,
+            verificationTokenExpiresAt: { $gt: Date.now() }  // Check the field name here
+        }).select("-password");
+        
+        console.log("User Query:", { verificationToken: verificationCode, verificationTokenExpiresAt: { $gt: Date.now() } });
+        console.log("User Found:", user);  // Log if the user was found
         if (!user) {
             return res.status(400).json({
                 success: false,
@@ -100,13 +111,15 @@ export const verifyEmail = async (req: Request, res: Response) => {
             })
         }
         user.isVerified = true;
-        user.verificationToken = undefined;
-        user.verificationTokenExpiredAt = undefined;
+        user.verificationToken  = undefined;
+        user.verificationTokenExpiresAt = undefined; // Correct the typo here
+
         await user.save();  //to save latest data
 
 
         //send welcome email
-        await sendWelcomeEmail(user.email, user.fullname);
+        await sendWelcomeEmail(user.email ?? '', user.fullname ?? 'User');
+
 
         return res.status(200).json({
             success: true,
@@ -175,7 +188,7 @@ export const forgetPassword = async (req: Request, res: Response) => {
     try {
         const { email } = req.body;
 
-        const user = await User.findOne({ email }) as { email: string, resetPasswordToken?: string, resetPasswordTokenExpiresAt?: Date }; // Cast user to appropriate type
+        const user = await User.findOne({ email }) //as { email: string, resetPasswordToken?: string, resetPasswordTokenExpiresAt?: Date }; // Cast user to appropriate type
         if (!user) {
             return res.status(400).json({
                 success: false,
@@ -218,7 +231,7 @@ export const resetPassword = async (req: Request, res: Response) => {
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
         user.resetPasswordToken = undefined;
-        user.resetPasswordTokenExpiredAt = undefined;
+        user.resetPasswordTokenExpiresAt = undefined; 
         await user.save();
 
         // esnd success reset email

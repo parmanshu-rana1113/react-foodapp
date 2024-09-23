@@ -5,7 +5,7 @@ import { useUserStore } from "@/store/useUserStore";
 import { Separator } from "@radix-ui/react-separator";
 import { Loader2, LockKeyhole, Mail, } from "lucide-react";
 import { ChangeEvent, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 //  2 type of define typescript  
 
@@ -25,7 +25,8 @@ const Login = () => {
 
     const [errors, setErrors] = useState<Partial<LoginInputState>>({});
 
-    const {loading ,login} = useUserStore();
+    const { loading, login } = useUserStore();
+    const navigate = useNavigate();
 
     const changeEventHandler = (e: ChangeEvent<HTMLInputElement>) => {
 
@@ -39,7 +40,7 @@ const Login = () => {
     const loginSubmitHandler = async (e: React.FormEvent) => {
         e.preventDefault(); // click krne pr pg refresh na ho 
 
-        const result =  userLoginSchema.safeParse(input);
+        const result = userLoginSchema.safeParse(input);
         if (!result.success) {
             const fieldErrors = result.error.formErrors.fieldErrors;
             setErrors(fieldErrors as Partial<LoginInputState>);
@@ -47,7 +48,14 @@ const Login = () => {
         }
 
         // console.log(input);
-        await login(input);
+
+
+        try {
+            await login(input);
+            navigate("/");
+        } catch (error) {
+            console.log(error)
+        }
     };
 
 

@@ -5,7 +5,7 @@ import { useUserStore } from "@/store/useUserStore";
 import { Separator } from "@radix-ui/react-separator";
 import { Loader2, LockKeyhole, Mail, PhoneOutgoing, User2 } from "lucide-react";
 import { ChangeEvent, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // 2 types for TypeScript
 // type SignupInputState = {
@@ -26,10 +26,10 @@ const Signup = () => {
   const [errors, setErrors] = useState<Partial<SignupInputState>>({});
   const [serverError, setServerError] = useState<string | null>(null);  // New state to handle server error
 
-
+  
   // useuserstore se layenge
   const { signup, loading } = useUserStore();
-
+  const navigate = useNavigate();
   const changeEventHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setInput({ ...input, [name]: value });
@@ -53,6 +53,7 @@ const Signup = () => {
     // api implementation  start here
     try {
       await signup(input);
+      navigate("/verify-email");
     } catch (error: any) {
       // Capture and display server error (like "User already exists")
       if (error.response && error.response.data) {

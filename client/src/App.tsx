@@ -15,49 +15,90 @@ import RestaurantDetatil from './components/RestaurantDetatil';
 import Cart from './components/Cart';
 import Restaurant from './admin/Restaurant';
 import AddMenu from './admin/AddMenu';
-import EditMenu from './admin/EditMenu';
+// import EditMenu from './admin/EditMenu';
 import Orders from './admin/Orders';
 import Success from './components/Success';
+import { useUserStore } from './store/useUserStore';
+import { Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import Loading from './components/loading';
 
+
+
+const ProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
+
+  const { isAuthenticated, user } = useUserStore();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (!user?.isVerified) {
+    return <Navigate to="/verify-email" replace />
+  }
+  //  children m component rehate hai Protected Routes k ander kitne bhi component rahenge
+  return children;
+}
+
+const AuthenticatedUser = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, user } = useUserStore();
+  if (isAuthenticated && user?.isVerified) {
+    return <Navigate to="/" replace />
+  }
+  return children;
+}
+
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, user } = useUserStore();
+
+  if (!isAuthenticated) {
+    return <Navigate to="login" replace />
+
+  }
+  if (!user?.admin) {
+    return <Navigate to="/" replace />
+  }
+  return children;
+}
 
 const appRouter = createBrowserRouter([
 
   {
     path: "/",
-    element: <MainLayout />,
-    children:[{
+    element: <ProtectedRoutes><MainLayout /></ProtectedRoutes>,
+    // element: <MainLayout />,
+    children: [{
       path: "/",
-      element:<Herosection/>
+      element: <Herosection />
     },
     {
       path: "/profile",
-      element: <Profile/>
+      element: <Profile />
     },
     {
       path: "/search/:text",
-      element:<SearchPage/>
+      element: <SearchPage />
     },
     {
       path: "/restaurant/:id",
-      element:<RestaurantDetatil/>
+      element: <RestaurantDetatil />
     },
     {
       path: "/cart",
-      element:<Cart/>
+      element: <Cart />
     },
     {
       path: "/order/status",
-      element:<Success/>
+      element: <Success />
     },
 
     // ADMIN START 
     {
       path: "/admin/restaurant",
-      element:<Restaurant/>
+      element: <AdminRoute> <Restaurant /></AdminRoute>
     },
     {
       path: "/admin/menu",
-      element:<AddMenu/>
+      element: <AdminRoute> <AddMenu /></AdminRoute>
     },
     // {
     //   path: "/admin/editmenu",
@@ -66,45 +107,56 @@ const appRouter = createBrowserRouter([
 
     {
       path: "/admin/orders",
-      element:<Orders/>
+      element: <AdminRoute> <Orders /></AdminRoute>
     },
- 
-  ]
+
+    ]
 
   },
   {
     path: "/login",
-    element: <Login />
+    element: <AuthenticatedUser> <Login /></AuthenticatedUser>,
+    // element:  <Login/> ,
   },
   {
     path: "/signup",
-    element: <Signup />
+    element: <AuthenticatedUser><Signup /></AuthenticatedUser>,
+    // element:  <Signup/> ,
   },
   {
     path: "/ForgetPassword",
-    element: <ForgetPassword />
+    element: <AuthenticatedUser>   <ForgetPassword /></AuthenticatedUser>,
   },
 
   {
     path: "/ResetPassword",
-    element: <ResetPassword />
+    element: <ResetPassword />,
   },
 
   {
     path: "/VerifyEmail",
-    element: <VerifyEmail />
+    element: <VerifyEmail />,
   },
 
   {
     path: "/Navbar",
-    element: <Navbar />
+    element: <Navbar />,
   },
- 
+
 ])
 
 function App() {
 
+  // jab bhi checkingauthentication m kuj  chnge hoga tb tb chlega uski ischeckingAuth check hogi
+  //checking auth everytime when page is load
+  const { checkAuthentication, isCheckingAuth } = useUserStore();
+  useEffect(() => {
 
+    checkAuthentication();
+
+  }, [checkAuthentication])
+
+  if (isCheckingAuth) return <Loading />
   return (
     <>
       <main>

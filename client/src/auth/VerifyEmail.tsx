@@ -1,15 +1,20 @@
 import { Input } from "@/components/ui/input";
+import { useUserStore } from "@/store/useUserStore";
 import { Loader2 } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const VerifyEmail = () => {
 
     const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
-    const inputRef = useRef<any>([]);
-    // const navigate = useNavigate();
-    const loading = false;
+    const inputRef = useRef<HTMLInputElement[]>([]);
 
+    // const navigate = useNavigate();
+    // const loading = false;
+
+    const {loading , verifyEmail} = useUserStore();
+    const navigate = useNavigate();
     const handleChange = (index: number, value: string) => {
 
         if (/^[a-zA-z0-9]$/.test(value) || value === "") {
@@ -47,7 +52,20 @@ const VerifyEmail = () => {
     // };
 
 
+      const submitHandler = async (e:React.FormEvent<HTMLFormElement>) =>{
 
+        e.preventDefault();
+        const verificationCode :string = otp.join("");
+   
+          //otp bhejdenge
+
+          try {
+            await verifyEmail(verificationCode) 
+            navigate("/");
+          } catch (error) {
+            console.log(error);
+          }
+      };
 
     return (
         <div className="flex items-center justify-center h-screen w-full">
@@ -60,17 +78,21 @@ const VerifyEmail = () => {
 
                 </div>
 
-                <form action="">
+                <form action="" onSubmit={submitHandler}>
 
                     <div className="flex  justify-between">
 
                         {
                             otp.map((letter: string, idx: number) => (
 
-                                <input
+                                <Input
                                     type="text"
                                     key={idx}
-                                    ref={(element) => (inputRef.current[idx] = element)}
+                                    ref={(element) => {
+                                        if (element !== null) {
+                                            inputRef.current[idx] = element;
+                                        }
+                                    }}
                                     maxLength={1}
                                     value={letter}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(idx, e.target.value)}

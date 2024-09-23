@@ -9,11 +9,13 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHe
 
 import { Separator } from "./ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useUserStore } from "@/store/useUserStore";
 
 
 const Navbar = () => {
-    const admin = false;
-    const loading = false;
+    const { user, loading, logout } = useUserStore();
+    // const admin = false;
+    // const loading = false;
     return (
         <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between h-14 w-full">
@@ -31,7 +33,7 @@ const Navbar = () => {
                     </div>
 
 
-                    {admin && (
+                    {user?.admin && (
                         <Menubar>
                             <MenubarMenu>
                                 <MenubarTrigger>
@@ -78,9 +80,9 @@ const Navbar = () => {
 
                         <div>
                             <Avatar>
-                                <AvatarImage/>
-                                    <AvatarFallback>CN</AvatarFallback>
-                        
+                                <AvatarImage />
+                                <AvatarFallback>CN</AvatarFallback>
+
                             </Avatar>
                         </div>
 
@@ -89,8 +91,8 @@ const Navbar = () => {
                             {
                                 loading ? (<Button className="bg-orange hover:bg-hoverorange">
                                     <Loader2 className="mr-2 w-5 h- animate-spin" />wait
-                                </Button>) : <Button className="bg-orange hover:bg-hoverorange">Logout</Button>
-                            }
+                                </Button>) : (<Button onClick={logout} className="bg-orange hover:bg-hoverorange">Logout</Button>
+                                )}
 
                         </div>
                     </div>
@@ -109,6 +111,7 @@ export default Navbar;
 
 const MobileNavbar = () => {
     // const user = true;
+    const { user, logout, loading } = useUserStore();
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -156,21 +159,29 @@ const MobileNavbar = () => {
                         <ShoppingCart className="text-black" />
                         <span className="text-black">Cart(0)</span>
                     </Link>
+                    {user?.admin && (
+                        <>
+                            <Link to="/admin/restaurant" className="flex items-center gap-4 hover:bg-gray-400 px-3 py-2 rounded-md cursor-pointer hover:text-gray-900">
+                                <UtensilsCrossed className="text-black" />
+                                <span className="text-black">Restaurant</span>
+                            </Link>
 
-                    <Link to="/admin/restaurant" className="flex items-center gap-4 hover:bg-gray-400 px-3 py-2 rounded-md cursor-pointer hover:text-gray-900">
-                        <UtensilsCrossed className="text-black" />
-                        <span className="text-black">Restaurant</span>
-                    </Link>
+                            <Link to="/admin/menu" className="flex items-center gap-4 hover:bg-gray-400 px-3 py-2 rounded-md cursor-pointer hover:text-gray-900">
+                                <SquareMenu className="text-black" />
+                                <span className="text-black">Menu</span>
+                            </Link>
 
-                    <Link to="/admin/menu" className="flex items-center gap-4 hover:bg-gray-400 px-3 py-2 rounded-md cursor-pointer hover:text-gray-900">
-                        <SquareMenu className="text-black" />
-                        <span className="text-black">Menu</span>
-                    </Link>
+                            <Link to="/admin/orders" className="flex items-center gap-4 hover:bg-gray-400 px-3 py-2 rounded-md cursor-pointer hover:text-gray-900">
+                                <PackageCheck className="text-black" />
+                                <span className="text-black">Restaurant Order</span>
+                            </Link>
+                        </>
 
-                    <Link to="/admin/orders" className="flex items-center gap-4 hover:bg-gray-400 px-3 py-2 rounded-md cursor-pointer hover:text-gray-900">
-                        <PackageCheck className="text-black" />
-                        <span className="text-black">Restaurant Order</span>
-                    </Link>
+                    )
+
+
+                    }
+
 
 
                 </SheetDescription>
@@ -187,7 +198,11 @@ const MobileNavbar = () => {
 
 
                     <SheetClose asChild>
-                        <Button type="submit" className="bg-orange hover:bg-hoverorange">Logout</Button>
+                        {
+                            loading ? (<Button className="bg-orange hover:bg-hoverorange">
+                                <Loader2 className="mr-2 w-5 h- animate-spin" />wait
+                            </Button>) : (<Button onClick={logout} className="bg-orange hover:bg-hoverorange">Logout</Button>
+                            )}
                     </SheetClose>
 
                 </SheetFooter>
