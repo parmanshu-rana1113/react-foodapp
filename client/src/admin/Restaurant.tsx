@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RestauarantFormSchema, restaurantFormSchema } from "@/schema/restaurantSchema";
+import { useRestaurantStore } from "@/store/useRestaurantStore";
 import { Loader2 } from "lucide-react";
 import { FormEvent, useState } from "react";
 
@@ -16,8 +17,10 @@ const Restaurant = () => {
         cuisines: [],
         imageFile: undefined
 
-    })
+    });
     const [errors, setErrors] = useState<Partial<RestauarantFormSchema>>({});
+    const { loading, restaurant, updateRestaurant, createRestaurant } = useRestaurantStore();
+
     const changeEventHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
 
         // const type = e.target.type;
@@ -25,7 +28,7 @@ const Restaurant = () => {
         setInput({ ...input, [name]: type === 'number' ? Number(value) : value });
     }
 
-    const submitHandler = (e: FormEvent<HTMLFormElement>) => {
+    const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
 
         e.preventDefault();
 
@@ -37,11 +40,38 @@ const Restaurant = () => {
         }
 
         // setErrors({});
+        try {
 
-        // ADD RESTAURATN API IMPLEMENTATION 
-        console.log(input);
+            // ADD RESTAURATN API IMPLEMENTATION 
+            const formData = new FormData();
+            formData.append("restaurantName", input.restaurantName);
+            formData.append("city", input.city);
+            formData.append("state", input.state);
+            formData.append("deliveryTime", input.deliveryTime.toString());
+            formData.append("cuisines", JSON.stringify(input.cuisines));
+
+            if (input.imageFile) {
+
+                formData.append("imageFile", input.imageFile);
+            }
+
+            if (restaurant) {
+                // to update karenge
+                await updateRestaurant(formData);
+            }
+            else {
+                // CREATE KARNEGE
+                await createRestaurant(formData)
+            }
+            // console.log(input);
+            // await createRestaurant(formData);
+        } catch (error) {
+            console.log(error);
+        }
+
+
     }
-    const loading = false;
+    // const loading = false;
     const restaurantHai = false;
     return (
         <div className="max-w-6xl mx-auto my-10">
