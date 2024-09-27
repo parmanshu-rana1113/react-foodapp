@@ -1,10 +1,11 @@
-import { Loader2, LocateIcon, Mail, MapIcon, MapPin, MapPinHouseIcon, Plus } from "lucide-react";
+import { Loader2, LocateIcon, Mail, MapPin, MapPinHouseIcon, Plus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { FormEvent, useRef, useState } from "react";
 import { Input } from "./ui/input";
 
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
+import { useUserStore } from "@/store/useUserStore";
 
 // type ProfileDataState = {
 
@@ -19,23 +20,25 @@ import { Button } from "./ui/button";
 
 const Profile = () => {
 
+    const { user,updateProfile } = useUserStore();
+    const [isLoading, setisLoading] = useState<boolean>(false);
     const [ProfileData, setProfileData] = useState({
 
-        fullname: "",
-        email: "",
+        fullname: user?.fullname || "",
+        email: user?.email || "",
 
-        address: "",
-        city: "",
-        state: "",
+        address: user?.address || "",
+        city: user?.city || "",
+        state: user?.state || "",
 
-        profilePicture: "",
+        profilePicture: user?.profilePicture || "",
 
     })
 
     const imageRef = useRef<HTMLInputElement | null>(null);
-    const [SelectedProfilePicture, setSelectedProfilePicture] = useState<string>("");
+    const [SelectedProfilePicture, setSelectedProfilePicture] = useState<string>(ProfileData.profilePicture || "");
 
-    const loading = false;
+    // const loading = false;
     const FileChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
 
@@ -59,14 +62,21 @@ const Profile = () => {
         setProfileData({ ...ProfileData, [name]: value });
     }
 
-    const updateProfileHandler = (e: FormEvent<HTMLInputElement>) => {
+    const updateProfileHandler = async (e: FormEvent<HTMLInputElement>) => {
         e.preventDefault();
-    //  update  profile api implementation
-        
+        //  update  profile api implementation
+        try {
+            setisLoading(true);
+            await updateProfile(ProfileData);
+            setisLoading(false);
+        } catch (error) {
+            setisLoading(false);
+        }
+       
     }
     return (
         <form onSubmit={updateProfileHandler} action="" className="max-w-7xl mx-auto my-5">
-  
+
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
 
@@ -109,6 +119,7 @@ const Profile = () => {
                     <div className="w-full">
                         <Label>Email</Label>
                         <input
+                            disabled
                             name="email"
                             value={ProfileData.email}
                             onChange={ChangeHandler}
@@ -165,10 +176,10 @@ const Profile = () => {
             </div>
 
             <div className="text-center">
-  
-             {
-                loading ? <Button  className="bg-orange hover:bg-hoverorange" disabled><Loader2 className="mr-2 w-5 h-5 animate-spin"/>Wait</Button> : <Button className="bg-orange hover:bg-hoverorange">Update</Button>  
-             }
+
+                {
+                    isLoading ? <Button className="bg-orange hover:bg-hoverorange" disabled><Loader2 className="mr-2 w-5 h-5 animate-spin" />Wait</Button> : <Button className="bg-orange hover:bg-hoverorange">Update</Button>
+                }
             </div>
         </form>
     )

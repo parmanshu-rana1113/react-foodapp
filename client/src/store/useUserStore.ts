@@ -14,8 +14,9 @@ type User = {
     fullname: string;
     email: string;
     contact: string;
+    address:string;
     city: string;
-    country: string;
+    state: string;
     profilePicture: String;
     admin: boolean;
     isVerified: boolean;
@@ -52,7 +53,7 @@ export const useUserStore = create<UserState>()(persist((set) => ({
 
     signup: async (input: SignupInputState) => {
         try {
-            set({ loading: true });
+            // set({ loading: true });
             const response = await axios.post(`${API_END_POINT}/signup`, input, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -63,14 +64,14 @@ export const useUserStore = create<UserState>()(persist((set) => ({
             if (response.data.success) {
                 console.log(response.data);
                 toast.success(response.data.message);
-                set({ loading: false, user: response.data.user, isAuthenticated: true });
+                set({user: response.data.user, isAuthenticated: true });
 
             }
         } catch (error: any) {
             console.log("Error in signup:", error);  // Log the entire error for debugging
             const message = error.response?.data?.message || "An unexpected error occurred";
             toast.error(message);
-            set({ loading: false });
+            // set({ loading: false });
         }
     },
 

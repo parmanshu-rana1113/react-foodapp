@@ -9,8 +9,20 @@ import { stat } from "fs";
 export const createRestaurant = async (req: Request, res: Response) => {
 
     try {
+
+        console.log("Request ID:", req.id);
+
         const { restaurantName, city, state, deliveryTime, cuisines } = req.body
         const file = req.file;
+
+
+
+        if (!req.id) {
+            return res.status(401).json({
+                success: false,
+                message: "User not authenticated  ye hi h"
+            });
+        }
 
         console.log(restaurantName, city, state, deliveryTime, cuisines);
 
@@ -24,7 +36,7 @@ export const createRestaurant = async (req: Request, res: Response) => {
         if (!file) {
             return res.status(400).json({
                 success: false,
-                message: "Restaurant already exist for this user"
+                message: "image is required"
             })
         }
         const imageUrl = await uploadImageOnCloudinary(file as Express.Multer.File);
@@ -53,10 +65,11 @@ export const createRestaurant = async (req: Request, res: Response) => {
 export const getRestaurant = async (req: Request, res: Response) => {
 
     try {
-        const restaurant = await Restaurant.find({ user: req.id })
+        const restaurant = await Restaurant.findOne({ user: req.id }).populate('menus');
         if (!restaurant) {
             return res.status(404).json({
                 success: false,
+                restaurant:[],
                 message: "Restaurant not Found"
             })
         };
@@ -160,7 +173,7 @@ export const searchRestaurant = async (req: Request, res: Response) => {
         const selectedCuisines = (req.query.selectedCuisines as string || "").split(",").filter(cuisine => cuisine);       //kunki hamare paas string m ayega data tu split krke , se tu vo array m hojega
 
 
-        const query: any = { };
+        const query: any = {};
         //basic search based on earchtext (name city state)
         if (searchText) {
             query.$or = [
@@ -174,8 +187,8 @@ export const searchRestaurant = async (req: Request, res: Response) => {
 
         if (searchQuery) {
             query.$or = [
-                { restaurantName: { $regex: searchText, $options: 'i' } },   //   i  means small ho big letter ho kisi word k bich m ho milajye bsss 
-                { cuisines: { $regex: searchQuery, $option: 'i' } },
+                { restaurantName: { $regex:searchQuery, $options: 'i' } },   //   i  means small ho big letter ho kisi word k bich m ho milajye bsss 
+                { cuisines: { $regex: searchQuery, $options: 'i' } },
 
             ]
         }
@@ -212,7 +225,7 @@ export const getSingleRestaurant = async (req: Request, res: Response) => {
                 message: "Restaurant not found"
             })
         };
-        return res.status(200).json(restaurant);
+        return res.status(200).json({success:true, restaurant} );
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: " Internal server error" })

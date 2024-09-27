@@ -6,6 +6,8 @@ import { Loader2, Plus } from "lucide-react";
 import { useState, FormEvent } from "react";
 import EditMenu from "./EditMenu";
 import { menuFormSchema, menuSchema } from "@/schema/menuScheme";
+import { useMenuStore } from "@/store/useMenuStore";
+import { useRestaurantStore } from "@/store/useRestaurantStore";
 // import { error } from "console";
 
 const menus = [
@@ -38,28 +40,45 @@ const AddMenu = () => {
     });
 
     const [open, setOpen] = useState<boolean>(false);
-    const [editOpen, setEditOpen] = useState <boolean>(false);
+    const [editOpen, setEditOpen] = useState<boolean>(false);
     const [selectedMenu, setSelectedMenu] = useState<menuFormSchema>();
     const [errors, setErrors] = useState<Partial<menuFormSchema>>({});
-    const loading = false;
+    const { loading, createMenu } = useMenuStore();
+    const {restaurant} = useRestaurantStore(); //this is for getmenu, kunki restaurant m sara menu ka data aata h tu vhi se fetch karlnge
+    // const loading = false;
 
     const changeEventHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type } = e.target;
         setInput({ ...input, [name]: type === 'number' ? parseFloat(value) : value });
     };
 
-    const submitHandler = (e: FormEvent<HTMLFormElement>) => {
+    const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const result = menuSchema.safeParse(input);
-        if(!result.success){
+        if (!result.success) {
             const fieldErrors = result.error.formErrors.fieldErrors;
             setErrors(fieldErrors as Partial<menuFormSchema>);
             return;
         }
 
         // console.log(input); 
-    //   API sTART 
+        //   API sTART 
+
+        try {
+            const formData = new FormData();
+            formData.append("name", input.name);
+            formData.append("description", input.description);
+            formData.append("price", input.price.toString());
+
+            if (input.image) {
+                formData.append("image", input.image);
+            }
+            await createMenu(formData);
+        } catch (error) {
+            console.log(error);
+        }
+
 
     };
 
@@ -129,7 +148,7 @@ const AddMenu = () => {
                                     name="image"
                                     onChange={(e) => setInput({ ...input, image: e.target.files?.[0] || undefined })}
                                 />
-                                {errors && <span className="text-xs font-medium text-red-600">{errors.image?.name|| "image is required"}</span>}
+                                {errors && <span className="text-xs font-medium text-red-600">{errors.image?.name}</span>}
 
                             </div>
 
@@ -149,26 +168,28 @@ const AddMenu = () => {
             </div>
 
             <div className="grid lg:grid-cols-3 gap-2 md:grid-cols-2 md:gap-6">
-                {menus.map((menu, idx) => (
+                {restaurant.menus.map((menu:any, idx:number) => (
+                    // console.log(menu),
+                    //  console.log(menu.image),  
                     <div className="mt-6 space-y-4" key={idx}>
                         <div className="flex flex-col md:flex-col md:items-center md:space-x-4 md:p-4 p-2 shadow-md rounded-md">
                             <img
-                                src={menu.images}
+                                src={menu.image}
                                 alt="image not available"
                                 className="md:h-24 md:w-24 lg:w-72 h-16 w-full object-cover rounded-lg"
                             />
                             <div className="">
-                                <h2 className="text-lg font-bold text-gray-800">{menu.title}</h2>
+                                <h2 className="text-lg font-bold text-gray-800">{menu.title ||menu.name}</h2>
                                 <p className="text-sm text-gray-600 mt-1">{menu.description}</p>
                                 <h3>Price: <span className="text-[#D19254]">{menu.price}</span></h3>
                             </div>
                             <Button onClick={() => {
-                                  setSelectedMenu({
+                                setSelectedMenu({
                                     name: menu.title, // map title to name
                                     description: menu.description,
                                     price: menu.price,
                                     image: undefined, // You may not have the image initially, so set it to undefined
-                                  });
+                                });
                                 setEditOpen(true);
                             }} className="bg-orange hover:bg-hoverorange mt-2 w-full">Edit</Button>
                         </div>

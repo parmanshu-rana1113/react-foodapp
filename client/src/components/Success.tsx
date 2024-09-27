@@ -40,8 +40,8 @@ const Success = () => {
 
                             <div className="text-right">
                                 <div className="text-gray-800 dark:text-gray-200 font-medium flex items-center">
-                                    <IndianRupee />
-                                    <span className="text-lg font-medium">100</span>
+                                    <IndianRupee className="mt-4 pl-1 " />
+                                    <span className="text-lg font-medium mt-3">100</span>
                                 </div>
                             </div>
                         </div>

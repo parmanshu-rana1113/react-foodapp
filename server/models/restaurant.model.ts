@@ -11,7 +11,7 @@ export interface IRestaurant {
     cuisines: string[];
     imageUrl: string;
     menus: mongoose.Schema.Types.ObjectId[] //AGAR KISI BANDE KI JYADA MENU HAI TO VO ARRAY M STORE KRSKATA HAI
-
+          
 }
 
 export interface IRestaurantDocument extends IRestaurant, Document {

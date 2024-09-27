@@ -3,53 +3,91 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { menuFormSchema, menuSchema } from "@/schema/menuScheme";
+import { useMenuStore } from "@/store/useMenuStore";
 import { Loader2 } from "lucide-react";
-import { Dispatch, FormEvent, SetStateAction, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+// import { toast } from "sonner";
 
 type EditMenuProps = {
-  selectedMenu?: { name: string; description: string; price: number; image?: File | undefined };
+  selectedMenu?: {
+    _id: any; name: string; description: string; price: number; image?: File | undefined 
+};
   editOpen: boolean;
   setEditOpen: (open: boolean) => void;
 };
 
 const EditMenu: React.FC<EditMenuProps> = ({ selectedMenu, editOpen, setEditOpen }) => {
   const [input, setInput] = useState<menuFormSchema>({
+  
     name: "",
     description: "",
     price: 0,
     image: undefined
   });
   const [errors, setErrors] = useState<Partial<menuFormSchema>>({});
-  const loading = false;
 
+  const { loading, editMenu } = useMenuStore();
 
+ 
 
-
-
-  const changeEventHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Change event handler to handle form inputs
+  const changeEventHandler = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
-    setInput({ ...input, [name]: type === 'number' ? Number(value) : value })
-  }
-  const submitHandler = (e: FormEvent<HTMLFormElement>) => {
+    setInput({ ...input, [name]: type === 'number' ? Number(value) : value });
+  };
+
+  // Submit handler for form submission
+  const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("Submitting with selectedMenu: ", selectedMenu);
+
+
+  
 
     const result = menuSchema.safeParse(input);
     if (!result.success) {
       const fieldErrors = result.error.formErrors.fieldErrors;
-      setErrors(fieldErrors as Partial<menuFormSchema>)
+      setErrors(fieldErrors as Partial<menuFormSchema>);
+      return;
     }
-    console.log(input)
-  }
+    console.log(input);
+    
+    if (!selectedMenu || !selectedMenu._id) {
 
-  // useEffect return se ekdamm upar use krte hai ,,, this time ye use kunki ye sabse pehle call hota h react lifexyxle m tu sbse pheele hameme purana data chiye 
-  useEffect(() => {
-    setInput({
-      name: selectedMenu?.name || "",
-      description: selectedMenu?.description || "",
-      price: selectedMenu?.price || 0,
-      image: undefined,
-    })
-  }, [selectedMenu])
+      console.error("Selected menu item is missing an ID.");
+      return;
+    }
+    // API call to update the menu
+    try {
+      const formData = new FormData();
+      formData.append("name", input.name);
+      formData.append("description", input.description);
+      formData.append("price", input.price.toString());
+      if(input.image){
+        formData.append("image", input.image);
+      }
+  
+      await editMenu(selectedMenu._id, formData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+   // This useEffect should be outside of the submitHandler
+   useEffect(() => {
+    console.log("Selected Menu in hai useEffect: ", selectedMenu);
+    if (selectedMenu) {
+      setInput({
+      
+        name: selectedMenu.name || "",
+        description: selectedMenu.description || "",
+        price: selectedMenu.price || 0,
+        image: undefined,  // Image may not be available initially
+      });
+    }
+  }, [selectedMenu]);
+
+  // Return JSX for rendering the EditMenu dialog
   return (
     <Dialog open={editOpen} onOpenChange={setEditOpen}>
       <DialogContent>
@@ -59,6 +97,7 @@ const EditMenu: React.FC<EditMenuProps> = ({ selectedMenu, editOpen, setEditOpen
             Update Your Menu to Keep your offerings fresh and exciting!
           </DialogDescription>
         </DialogHeader>
+
         {selectedMenu ? (
           <form onSubmit={submitHandler} className="space-y-4">
             <div>
@@ -70,7 +109,7 @@ const EditMenu: React.FC<EditMenuProps> = ({ selectedMenu, editOpen, setEditOpen
                 value={input.name}
                 onChange={changeEventHandler}
               />
-              {errors && <span className="text-xs font-medium text-red-600">{errors.name}</span>}
+              {errors.name && <span className="text-xs font-medium text-red-600">{errors.name}</span>}
             </div>
 
             <div>
@@ -82,7 +121,7 @@ const EditMenu: React.FC<EditMenuProps> = ({ selectedMenu, editOpen, setEditOpen
                 value={input.description}
                 onChange={changeEventHandler}
               />
-              {errors && <span className="text-xs font-medium text-red-600">{errors.description}</span>}
+              {errors.description && <span className="text-xs font-medium text-red-600">{errors.description}</span>}
             </div>
 
             <div>
@@ -94,7 +133,7 @@ const EditMenu: React.FC<EditMenuProps> = ({ selectedMenu, editOpen, setEditOpen
                 value={input.price}
                 onChange={changeEventHandler}
               />
-              {errors && <span className="text-xs font-medium text-red-600">{errors.price}</span>}
+              {errors.price && <span className="text-xs font-medium text-red-600">{errors.price}</span>}
             </div>
 
             <div>
@@ -104,7 +143,7 @@ const EditMenu: React.FC<EditMenuProps> = ({ selectedMenu, editOpen, setEditOpen
                 name="image"
                 onChange={(e) => setInput({ ...input, image: e.target.files?.[0] || undefined })}
               />
-              {errors && <span className="text-xs font-medium text-red-600">{errors.image?.name || "image is required"}</span>}
+              {errors.image?.name && <span className="text-xs font-medium text-red-600">{errors.image.name}</span>}
             </div>
 
             <DialogFooter className="mt-5">
@@ -118,14 +157,12 @@ const EditMenu: React.FC<EditMenuProps> = ({ selectedMenu, editOpen, setEditOpen
               )}
             </DialogFooter>
           </form>
-        ) : (<p>no menu</p>
-
+        ) : (
+          <p>No menu selected</p>
         )}
       </DialogContent>
-
     </Dialog>
-  )
-
-}
+  );
+};
 
 export default EditMenu;

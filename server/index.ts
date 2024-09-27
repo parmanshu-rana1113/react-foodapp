@@ -39,5 +39,5 @@ app.use("/api/v1/order",orderRoute);
 
 app.listen(PORT, () => {
     connectDB();
-    console.log(`server listen at ${PORT}`);
+    console.log(`Server listening at ${PORT}`);
 })

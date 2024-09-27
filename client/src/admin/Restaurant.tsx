@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { RestauarantFormSchema, restaurantFormSchema } from "@/schema/restaurantSchema";
 import { useRestaurantStore } from "@/store/useRestaurantStore";
 import { Loader2 } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 
 const Restaurant = () => {
@@ -19,7 +19,7 @@ const Restaurant = () => {
 
     });
     const [errors, setErrors] = useState<Partial<RestauarantFormSchema>>({});
-    const { loading, restaurant, updateRestaurant, createRestaurant } = useRestaurantStore();
+    const { loading, restaurant, updateRestaurant, createRestaurant, getRestaurant } = useRestaurantStore();
 
     const changeEventHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
 
@@ -42,13 +42,17 @@ const Restaurant = () => {
         // setErrors({});
         try {
 
+            const trimmedCuisines = input.cuisines.map(cuisine => cuisine.trim());
+
             // ADD RESTAURATN API IMPLEMENTATION 
             const formData = new FormData();
             formData.append("restaurantName", input.restaurantName);
             formData.append("city", input.city);
             formData.append("state", input.state);
             formData.append("deliveryTime", input.deliveryTime.toString());
-            formData.append("cuisines", JSON.stringify(input.cuisines));
+            // formData.append("cuisines", JSON.stringify(input.cuisines));
+            formData.append("cuisines", JSON.stringify(trimmedCuisines));
+
 
             if (input.imageFile) {
 
@@ -70,9 +74,26 @@ const Restaurant = () => {
         }
 
 
-    }
+    };
     // const loading = false;
-    const restaurantHai = false;
+    // const restaurantHai = false;/
+
+    useEffect(() => {
+        const fetchRestaurant = async () => {
+            await getRestaurant();
+            setInput({
+                restaurantName: restaurant.restaurantName || "",
+                city: restaurant.city || "",
+                state: restaurant.state || "",
+                deliveryTime: restaurant.deliveryTime || 0,
+                cuisines: restaurant.cuisines ? restaurant.cuisines.map((cuisine: string) => cuisine) : [],
+                imageFile: undefined
+            });
+        };
+        console.log(restaurant);
+        fetchRestaurant();
+    }, []);
+
     return (
         <div className="max-w-6xl mx-auto my-10">
 
@@ -173,7 +194,7 @@ const Restaurant = () => {
                                     </Button>
 
                                 ) : <Button type="submit" className="bg-orange hover:bg-orange">
-                                    {restaurantHai ? 'Update Your Restaurant' : " Add Your Restaurant"}
+                                    {restaurant ? 'Update Your Restaurant' : " Add Your Restaurant"}
                                 </Button>
                             }
 

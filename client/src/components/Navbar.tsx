@@ -10,10 +10,12 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHe
 import { Separator } from "./ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useUserStore } from "@/store/useUserStore";
+import { useCartStore } from "@/store/useCartStore";
 
 
 const Navbar = () => {
     const { user, loading, logout } = useUserStore();
+    const { cart } = useCartStore();
     // const admin = false;
     // const loading = false;
     return (
@@ -29,7 +31,7 @@ const Navbar = () => {
                     <div className="hidden md:flex items-center gap-6 ">
                         <Link to="/" className=" text-black">Home</Link>
                         <Link to="/profile" className=" text-black">Profile</Link>
-                        <Link to="/order" className=" text-black">Order</Link>
+                        <Link to="/order/status" className=" text-black">Order</Link>
                     </div>
 
 
@@ -44,7 +46,7 @@ const Navbar = () => {
                                         <MenubarItem>Restaurant</MenubarItem> </Link>
                                     <Link to="/admin/menu">
                                         <MenubarItem>Menu</MenubarItem></Link>
-                                    <Link to="/admin/order">
+                                    <Link to="/admin/orders">
                                         <MenubarItem>Order</MenubarItem></Link>
                                 </MenubarContent>
                             </MenubarMenu>
@@ -75,7 +77,13 @@ const Navbar = () => {
                         </div>
                         <Link to="/cart" className="relative cursor-pointer  text-black">
                             <ShoppingCart />
-                            <button className="absolute -inset-y-4 text-xs rounded-full h-4 w-5 bg-white text-black p-1 left-2">5</button>
+
+                            {
+                                cart.length > 0 && (
+                                    <button className="absolute -inset-y-4 text-xs rounded-full h-4 w-5 bg-white text-black p-1 left-2">{cart.length}</button>
+                                )
+                            }
+
                         </Link>
 
                         <div>
