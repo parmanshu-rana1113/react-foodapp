@@ -88,7 +88,7 @@ const Navbar = () => {
 
                         <div>
                             <Avatar>
-                                <AvatarImage />
+                                <AvatarImage src={user?.profilePicture} alt="Profilepicture"/>
                                 <AvatarFallback>CN</AvatarFallback>
 
                             </Avatar>

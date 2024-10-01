@@ -1,3 +1,4 @@
+import { Orders } from "./orderType";
 
 export type MenuItem = {
     _id: string;
@@ -32,15 +33,21 @@ export type RestaurantState = {
     searchedRestaurant: searchedRestaurant | null;
     appliedFilter:string[];
     singleRestaurant :Restaurant | null,
+    restaurantOrder:Orders[],
     createRestaurant: (formData: FormData) => Promise<void>;
     getRestaurant: () => Promise<void>;
+    addMenuToRestaurant: (menu: MenuItem) => void;
 
     searchRestaurant: (searachText: string, searchQuery: string, selectedCuisines: any) => Promise<void>;
     addMenuRestaurant: (menu: any) => void;
     // updateMenuToRestaurant: (menu: MenuItem) => <void;
     setAppliedFilter: (value: string) => void
-    updateMenuToRestaurant: (menu: MenuItem) => void;
+    updateMenuToRestaurant: (menu: MenuItem) => <void;
     resetAppliedFilter: () => void;
     getSingleRestaurant: (restaurantId:string) => Promise<void>;
+    getRestaurantOrders: () => Promise<void>;
+    updateRestaurantOrder: (orderId:string, status:string) => Promise<void>;
+    
+
 
 }

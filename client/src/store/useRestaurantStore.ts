@@ -1,4 +1,5 @@
 // import loading from "@/components/loading";
+import { Orders } from "@/types/orderType";
 import { MenuItem, RestaurantState } from "@/types/restaurantType";
 import axios from "axios";
 
@@ -13,13 +14,14 @@ axios.defaults.withCredentials = true;
 
 
 
-export const useRestaurantStore = create<RestaurantState>()(persist((set) => ({
+export const useRestaurantStore = create<RestaurantState>()(persist((set, get) => ({
 
     loading: false,
     restaurant: null,
     searchedRestaurant: null,
     appliedFilter: [],
     singleRestaurant: null,
+    restaurantOrder: [],
     createRestaurant: async (formData: FormData) => {
 
         try {
@@ -136,22 +138,64 @@ export const useRestaurantStore = create<RestaurantState>()(persist((set) => ({
     resetAppliedFilter: () => {
         set({ appliedFilter: [] });
     },
-    getSingleRestaurant: async (restaturantId:string) => {
+    getSingleRestaurant: async (restaturantId: string) => {
 
         try {
-             const response = await axios.get(`${API_END_POINT}/${restaturantId}`);
-              if( response.data.success) {
+            const response = await axios.get(`${API_END_POINT}/${restaturantId}`);
+            if (response.data.success) {
                 console.log(response.data);
-                set({ singleRestaurant: response.data.restaurant})
-              }
-            } catch (error) {
-                console.log(error);
+                set({ singleRestaurant: response.data.restaurant })
+            }
+        } catch (error) {
+            console.log(error);
 
-            
+
+        }
+    },
+
+    getRestaurantOrders: async () => {
+
+        try {
+            const response = await axios.get(`${API_END_POINT}/order`);
+            console.log('Full API Response:', response); // Log the full response object
+            // console.log('API Response:', response.data); // Log response to check data
+            if (response.data.success) {
+                console.log('Orders from API:', response.data.orders); // Log the orders array
+                set({ restaurantOrder: response.data.orders });
+                console.log('Restaurant Orders:', get().restaurantOrder); // Check state after setting it
+            } else {
+                console.log('API request failed:', response.data.message); // Log error if any
+            }
+
+        } catch (error) {
+            console.log(error);
+        }
+    },
+    updateRestaurantOrder: async (orderId: string, status: string) => {
+
+        try {
+          const response = await axios.put(`${API_END_POINT}/order/${orderId}/status`, { status }, {
+
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.data.success) {
+                const updatedOrder = get().restaurantOrder.map((order: Orders) => {
+
+                    return order._id === orderId ? { ...order, status: response.data.status } : order;
+                })
+
+                set({ restaurantOrder: updatedOrder });
+                toast.success(response.data.message);
+            }
+        } catch (error: any) {
+            toast.error(error.response.data.message);
         }
     }
 
-   
+
 
 
 }), {

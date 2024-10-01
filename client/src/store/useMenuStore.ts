@@ -34,7 +34,7 @@ export const useMenuStore = create<MenuState>()(persist((set) => ({
                 set({ loading: false, menu: response.data.menu });
             }
             //update restaurant
-            useRestaurantStore.getState().addMenuToRestaurant(response.data.menu);
+            useRestaurantStore.getState().addMenuRestaurant(response.data.menu);
         } catch (error: any) {
             set({ loading: false })
             toast.error(error.response.data.message);

@@ -28,12 +28,12 @@ const orderSchema = new mongoose.Schema<IOrder>({
 
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: " User",
+        ref: "User",
         required: true
     },
     restaurant: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: " restaurant",
+        ref: "restaurant",
         required: true
     },
     deliveryDetails: {

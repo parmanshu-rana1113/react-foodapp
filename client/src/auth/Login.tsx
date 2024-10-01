@@ -66,7 +66,7 @@ const Login = () => {
 
             <form onSubmit={loginSubmitHandler} action="" className="md:p-8 w-full max-w-md rounded-lg md:border border-gray-500 mx-4">
                 <div className="mb-4">
-                    <h1 className="font-bold text-2xl">EATS</h1>
+                    <h1 className="font-bold text-4xl text-center">Foodizm</h1>
                 </div>
                 <div className="mb-4">
                     <div className="relative">

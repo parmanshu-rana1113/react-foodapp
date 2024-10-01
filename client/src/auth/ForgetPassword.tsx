@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Loader2, Mail, MailIcon } from "lucide-react";
+import { Loader2,  MailIcon } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
